@@ -516,3 +516,46 @@ body{
     overflow:visible;
   }
 }
+
+
+/* Reception live-state cleanup */
+.liveQuickActions{
+  min-height:150px;
+}
+
+.middleGrid.liveQuickActions,
+.liveQuickActions{
+  display:block;
+}
+
+.quickContext{
+  color:#64748b;
+  font-size:10px;
+}
+
+.selectedVisitState{
+  margin-top:9px;
+  padding:7px 9px;
+  border:1px solid #dbeafe;
+  border-radius:7px;
+  background:#f8fbff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.selectedVisitState span{
+  color:#64748b;
+  font-size:9px;
+}
+
+.selectedVisitState strong{
+  color:var(--brand-dark);
+  font-size:10px;
+}
+
+.statusFeedEmpty{
+  color:#94a3b8;
+  font-size:10px;
+}
