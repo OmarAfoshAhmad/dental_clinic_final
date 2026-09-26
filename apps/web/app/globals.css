@@ -143,3 +143,42 @@ html[data-density="comfortable"] .dentalTable td{padding:7px 8px}
 }
 
 .actionSuccess{display:block;margin-top:7px;color:#047857;font-size:9px;font-weight:700}
+
+
+/* Reception: Patient / Visit separation */
+.visitSection{
+  margin-top:2px;
+  padding:10px;
+  border:1px solid #dbeafe;
+  border-radius:var(--radius);
+  background:#f8fcff;
+}
+.visitSectionTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding-bottom:8px;
+  margin-bottom:8px;
+  border-bottom:1px solid #e0f2fe;
+}
+.visitSectionTitle strong{
+  color:var(--brand-dark);
+  font-size:11px;
+}
+.visitSectionTitle small{
+  color:#64748b;
+  font-size:9px;
+}
+.visitFields{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.visitActions{
+  grid-template-columns:1fr 1.5fr;
+}
+@media(max-width:800px){
+  .visitFields,.visitActions{grid-template-columns:1fr}
+  .visitSectionTitle{align-items:flex-start;flex-direction:column}
+}
