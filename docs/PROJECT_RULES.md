@@ -85,3 +85,16 @@ A reception feature is complete only when:
 8. Query cache is invalidated correctly.
 9. No duplicated UI primitive is introduced.
 10. Feature is tested manually against the reception workflow.
+
+
+## 6. Live Data Integrity Rules
+
+- Production-facing UI must never display fabricated operational or financial data.
+- A badge/card must represent exactly one real state derived from backend data.
+- Mutually exclusive states must never render together.
+- Financial balances must come from a real ledger/invoice/payment read model; never default to zero.
+- Recent activity feeds must be derived from persisted events/records, not hard-coded names or timestamps.
+- If a feature is not implemented end-to-end, disable or hide its action and explain why via tooltip/help text.
+- A button is considered functional only when its backend business rule, validation, persistence and UI feedback are all implemented.
+- Patient-level data and Visit-level data must not be silently substituted for one another.
+- Destructive actions must be rejected by the backend when historical or operational records would be lost.
