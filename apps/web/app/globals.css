@@ -182,3 +182,178 @@ html[data-density="comfortable"] .dentalTable td{padding:7px 8px}
   .visitFields,.visitActions{grid-template-columns:1fr}
   .visitSectionTitle{align-items:flex-start;flex-direction:column}
 }
+
+
+/* Fix: restore professional reception scale and full viewport usage */
+body{
+  min-height:100vh;
+}
+
+.appShell{
+  min-height:calc(100vh - 20px);
+  display:flex;
+  flex-direction:column;
+}
+
+.topbar{
+  min-height:72px;
+}
+
+.dashboard{
+  flex:1;
+  min-height:0;
+  align-items:stretch;
+}
+
+.receptionColumn,
+.recordsColumn{
+  min-height:0;
+}
+
+.recordsColumn{
+  display:grid;
+  grid-template-rows:minmax(220px,1.15fr) auto minmax(220px,1fr);
+}
+
+.formCard,
+.patientsCard,
+.queueCard{
+  min-height:0;
+}
+
+.card{
+  padding:14px;
+}
+
+.sectionHeading{
+  min-height:34px;
+}
+
+.sectionHeading b,
+.sectionHeading strong{
+  font-size:13px;
+}
+
+.field>span,
+.dialogForm label span{
+  font-size:11px;
+}
+
+.field input,
+.field select{
+  height:36px;
+  font-size:12px;
+}
+
+.radioGroup{
+  height:36px;
+  font-size:11px;
+}
+
+.patientForm{
+  gap:11px;
+}
+
+.dentalTable{
+  font-size:11px;
+}
+
+.dentalTable th{
+  padding:8px 8px;
+  font-size:11px;
+}
+
+.dentalTable td{
+  padding:7px 8px;
+}
+
+.quickHeader strong,
+.quickGrid button,
+.noDebtCard b,
+.debtTitle b{
+  font-size:10px;
+}
+
+.quickSearch{
+  height:32px;
+}
+
+.quickSearch input{
+  font-size:10px;
+}
+
+.quickGrid button{
+  min-height:38px;
+}
+
+.statusFooter{
+  min-height:58px;
+}
+
+.statusFooterLabel{
+  font-size:11px;
+}
+
+.statusItem{
+  min-width:165px;
+  padding:7px 9px;
+}
+
+.statusItem small{
+  font-size:9px;
+}
+
+.statusItem b{
+  font-size:10px;
+}
+
+.statusItem time{
+  font-size:9px;
+}
+
+.visitSection{
+  padding:12px;
+}
+
+.visitSectionTitle strong{
+  font-size:12px;
+}
+
+.visitSectionTitle small{
+  font-size:10px;
+}
+
+html[data-density="compact"] .card{
+  padding:14px;
+}
+
+html[data-density="compact"] .field input,
+html[data-density="compact"] .field select{
+  height:36px;
+}
+
+html[data-density="comfortable"] .card{
+  padding:18px;
+}
+
+html[data-density="comfortable"] .field input,
+html[data-density="comfortable"] .field select{
+  height:40px;
+}
+
+html[data-density="comfortable"] .dentalTable th{
+  padding:10px;
+}
+
+html[data-density="comfortable"] .dentalTable td{
+  padding:9px 10px;
+}
+
+@media(max-width:1200px){
+  .appShell{min-height:100vh}
+  .recordsColumn{display:flex}
+}
+
+@media(max-width:800px){
+  .appShell{min-height:100vh}
+}
