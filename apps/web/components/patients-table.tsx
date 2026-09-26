@@ -31,7 +31,7 @@ export function PatientsTable({ search }: { search: string }) {
           <thead>
             <tr>
               <th>م</th><th>رقم الملف</th><th>الاسم</th><th>رقم الهاتف</th><th>العيادة</th>
-              <th>الطبيب</th><th>العمر</th><th>العنوان</th><th>آخر تحديث</th><th>إجراءات</th>
+              <th>الطبيب</th><th>العمر</th><th>العنوان</th><th>آخر زيارة</th><th>إجراءات</th>
             </tr>
           </thead>
           <tbody>
@@ -53,7 +53,7 @@ export function PatientsTable({ search }: { search: string }) {
                 <td>{patient.doctor?.name ?? '-'}</td>
                 <td>{patient.age ?? '-'}</td>
                 <td>{patient.address ?? '-'}</td>
-                <td dir="ltr">{new Date(patient.updatedAt).toISOString().slice(0, 10)}</td>
+                <td dir="ltr">{patient.latestVisit ? new Date(patient.latestVisit.visitedAt).toISOString().slice(0, 10) : '-'}</td>
                 <td>
                   <div className="rowActions">
                     <button type="button" aria-label="عرض الزيارات" onClick={(e) => { e.stopPropagation(); action(patient.id, 'visits'); }}><Eye size={12} /></button>

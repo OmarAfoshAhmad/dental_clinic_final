@@ -1,52 +1,90 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CalendarCheck, Check, Coins, FileText, Info, Pencil, Search, Trash2, Zap } from 'lucide-react';
+import { CalendarCheck, FileText, Pencil, Trash2, WalletCards, Zap } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useReceptionStore } from '@/store/reception-store';
 
-export function QuickActions() {
-  const selected = useReceptionStore((s) => s.selectedPatientId);
-  const open = useReceptionStore((s) => s.openDialog);
-  const qc = useQueryClient();
-  const disabled = !selected;
+const visitStatusLabels: Record<string, string> = {
+  REGISTERED: 'مسجلة',
+  ARRIVED: 'وصل',
+  WAITING: 'في الانتظار',
+  CALLED: 'تم النداء',
+  WITH_DOCTOR: 'عند الطبيب',
+  PROCEDURE_REQUIRED: 'بحاجة لإجراء',
+  SENT_TO_TREASURY: 'مرسل للخزينة',
+  PAYMENT_PENDING: 'بانتظار السداد',
+  PAID: 'تم السداد',
+  RETURN_TO_DOCTOR: 'عائد للطبيب',
+  COMPLETED: 'مكتملة',
+  CANCELLED: 'ملغاة',
+  NO_SHOW: 'لم يحضر',
+};
 
-  const treasury = useMutation({
-    mutationFn: () => api.queue.send(selected!, 'TREASURY'),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['queue'] }),
+export function QuickActions() {
+  const selected = useReceptionStore((state) => state.selectedPatientId);
+  const open = useReceptionStore((state) => state.openDialog);
+
+  const { data: patient } = useQuery({
+    queryKey: ['patient', selected],
+    queryFn: () => api.patients.get(selected!),
+    enabled: Boolean(selected),
   });
 
   return (
-    <div className="middleGrid">
-      <section className="card quickCard">
-        <div className="quickHeader">
-          <label className="quickSearch"><Search size={12} /><input placeholder="البحث في المرضى بالاسم أو رقم الملف أو رقم الجوال ..." /></label>
-          <strong>إجراءات سريعة <Zap size={14} /></strong>
-        </div>
+    <section className="card quickCard liveQuickActions">
+      <div className="quickHeader">
+        <strong>إجراءات سريعة <Zap size={14} /></strong>
+        <small className="quickContext">
+          {selected ? patient?.fullName ?? 'جارٍ تحميل المريض...' : 'اختر مريضًا من الجدول'}
+        </small>
+      </div>
 
-        <div className="quickGrid">
-          <button disabled={disabled} onClick={() => open('edit')}><Pencil size={14} />تعديل البيانات</button>
-          <button disabled={disabled} onClick={() => open('appointment')}><CalendarCheck size={14} />حجز موعد</button>
-          <button disabled={disabled} onClick={() => open('visits')}><FileText size={14} />عرض الزيارات</button>
-          <button disabled={disabled || treasury.isPending} onClick={() => treasury.mutate()}><Coins size={14} />{treasury.isPending ? 'جارٍ الإرسال...' : 'الخزينة'}</button>
-          <button disabled={disabled} className="dangerText" onClick={() => open('delete')}><Trash2 size={14} />حذف</button>
-        </div>
-        {treasury.isSuccess && <small className="actionSuccess">تم إرسال المريض إلى الخزينة.</small>}
-        {treasury.isError && <small className="fieldError">تعذر الإرسال إلى الخزينة.</small>}
-      </section>
+      <div className="quickGrid">
+        <button disabled={!selected} onClick={() => open('edit')}>
+          <Pencil size={14} />
+          تعديل البيانات
+        </button>
 
-      <section className="financeGrid">
-        <div className="noDebtCard"><span><Check size={15} /></span><b>لا توجد مديونية</b></div>
-        <div className="debtCard">
-          <div className="debtTitle"><span><Coins size={14} /></span><b>المديونية الحالية</b></div>
-          <small>تظهر حسب المريض المحدد</small>
-          <strong>{selected ? '0 دينار' : '—'}</strong>
-          <div className="debtActions">
-            <button type="button" disabled={!selected || treasury.isPending} onClick={() => treasury.mutate()}>تحويل للخزينة للسداد</button>
-            <span><Info size={11} /></span>
-          </div>
+        <button
+          disabled
+          title="سيتم تفعيل الحجز بعد اكتمال ربط الموعد بالعيادة والطبيب"
+        >
+          <CalendarCheck size={14} />
+          حجز موعد
+        </button>
+
+        <button disabled={!selected} onClick={() => open('visits')}>
+          <FileText size={14} />
+          عرض الزيارات
+        </button>
+
+        <button
+          disabled
+          title="سيتم تفعيل الخزينة بعد إنشاء المسار المالي المرتبط بالزيارة"
+        >
+          <WalletCards size={14} />
+          الخزينة
+        </button>
+
+        <button
+          disabled={!selected}
+          className="dangerText"
+          onClick={() => open('delete')}
+        >
+          <Trash2 size={14} />
+          حذف
+        </button>
+      </div>
+
+      {selected && patient?.latestVisit && (
+        <div className="selectedVisitState">
+          <span>آخر زيارة</span>
+          <strong>
+            {visitStatusLabels[patient.latestVisit.status] ?? patient.latestVisit.status}
+          </strong>
         </div>
-      </section>
-    </div>
+      )}
+    </section>
   );
 }

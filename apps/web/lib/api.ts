@@ -11,6 +11,7 @@ export type Patient = {
   clinic: { id: string; name: string } | null;
   doctor: { id: string; name: string } | null;
   updatedAt: string;
+  latestVisit?: { id: string; type: VisitType; status: VisitStatus; visitedAt: string } | null;
 };
 
 export type VisitType =
