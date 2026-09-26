@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ChevronDown, Save, Send, UserPen, Users } from 'lucide-react';
+import { Ban, ChevronDown, RadioTower, Save, Send, UserPen, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { api } from '@/lib/api';
@@ -25,7 +25,6 @@ const visitTypeLabels: Record<VisitFormInput['type'], string> = {
 
 function getAge(birthDate?: string) {
   if (!birthDate) return '';
-
   const birth = new Date(birthDate);
   if (Number.isNaN(birth.getTime())) return '';
 
@@ -45,11 +44,27 @@ function getAge(birthDate?: string) {
 
 export function PatientForm() {
   const queryClient = useQueryClient();
+
   const [visit, setVisit] = useState<VisitFormInput>({
     clinicCode: 'general',
     doctorCode: 'khaled',
     type: 'NEW_CONSULTATION',
     notes: '',
+  });
+
+  const [medicalFlags, setMedicalFlags] = useState({
+    none: true,
+    hypertension: false,
+    diabetes: false,
+    heart: false,
+    other: false,
+  });
+
+  const [referralSource, setReferralSource] = useState('');
+  const [radiology, setRadiology] = useState({
+    referredClinic: '',
+    referredDoctor: '',
+    requestedProcedure: '',
   });
 
   const form = useForm<PatientFormInput>({
@@ -67,11 +82,28 @@ export function PatientForm() {
   const birthDate = form.watch('birthDate');
   const age = useMemo(() => getAge(birthDate), [birthDate]);
 
+  const resetForm = () => {
+    form.reset();
+    setMedicalFlags({
+      none: true,
+      hypertension: false,
+      diabetes: false,
+      heart: false,
+      other: false,
+    });
+    setReferralSource('');
+    setRadiology({
+      referredClinic: '',
+      referredDoctor: '',
+      requestedProcedure: '',
+    });
+  };
+
   const savePatient = useMutation({
     mutationFn: (data: PatientFormInput) => api.patients.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patients'] });
-      form.reset();
+      resetForm();
     },
   });
 
@@ -89,11 +121,32 @@ export function PatientForm() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patients'] });
-      form.reset();
+      queryClient.invalidateQueries({ queryKey: ['visits'] });
+      resetForm();
     },
   });
 
   const isBusy = savePatient.isPending || saveAndStartVisit.isPending;
+  const showRadiology = visit.type === 'RADIOLOGY';
+
+  const toggleMedicalFlag = (key: keyof typeof medicalFlags) => {
+    if (key === 'none') {
+      setMedicalFlags({
+        none: true,
+        hypertension: false,
+        diabetes: false,
+        heart: false,
+        other: false,
+      });
+      return;
+    }
+
+    setMedicalFlags((current) => ({
+      ...current,
+      none: false,
+      [key]: !current[key],
+    }));
+  };
 
   return (
     <section className="card formCard">
@@ -102,11 +155,16 @@ export function PatientForm() {
         <strong><Users size={17} />واجهة الاستقبال</strong>
       </div>
 
-      <form className="patientForm" onSubmit={form.handleSubmit((data) => savePatient.mutate(data))}>
+      <form
+        className="patientForm"
+        onSubmit={form.handleSubmit((data) => savePatient.mutate(data))}
+      >
         <label className="field fullField">
           <span>الاسم الكامل <em>*</em></span>
           <input {...form.register('fullName')} />
-          {form.formState.errors.fullName && <small className="fieldError">{form.formState.errors.fullName.message}</small>}
+          {form.formState.errors.fullName && (
+            <small className="fieldError">{form.formState.errors.fullName.message}</small>
+          )}
         </label>
 
         <div className="birthGenderRow fullField">
@@ -114,10 +172,12 @@ export function PatientForm() {
             <span>تاريخ الميلاد</span>
             <input type="date" {...form.register('birthDate')} />
           </label>
+
           <label className="field ageField">
             <span>العمر</span>
             <input value={age} readOnly tabIndex={-1} />
           </label>
+
           <div className="field genderField">
             <span>الجنس</span>
             <div className="radioGroup">
@@ -130,7 +190,9 @@ export function PatientForm() {
         <label className="field">
           <span>رقم الهاتف <em>*</em></span>
           <input dir="ltr" {...form.register('phone')} />
-          {form.formState.errors.phone && <small className="fieldError">{form.formState.errors.phone.message}</small>}
+          {form.formState.errors.phone && (
+            <small className="fieldError">{form.formState.errors.phone.message}</small>
+          )}
         </label>
 
         <label className="field">
@@ -155,7 +217,12 @@ export function PatientForm() {
               <div className="selectWrap">
                 <select
                   value={visit.type}
-                  onChange={(event) => setVisit({ ...visit, type: event.target.value as VisitFormInput['type'] })}
+                  onChange={(event) =>
+                    setVisit({
+                      ...visit,
+                      type: event.target.value as VisitFormInput['type'],
+                    })
+                  }
                 >
                   {Object.entries(visitTypeLabels).map(([value, label]) => (
                     <option key={value} value={value}>{label}</option>
@@ -170,7 +237,9 @@ export function PatientForm() {
               <div className="selectWrap">
                 <select
                   value={visit.clinicCode}
-                  onChange={(event) => setVisit({ ...visit, clinicCode: event.target.value })}
+                  onChange={(event) =>
+                    setVisit({ ...visit, clinicCode: event.target.value })
+                  }
                 >
                   <option value="general">الأسنان العام</option>
                   <option value="ortho">تقويم الأسنان</option>
@@ -187,7 +256,9 @@ export function PatientForm() {
               <div className="selectWrap">
                 <select
                   value={visit.doctorCode}
-                  onChange={(event) => setVisit({ ...visit, doctorCode: event.target.value })}
+                  onChange={(event) =>
+                    setVisit({ ...visit, doctorCode: event.target.value })
+                  }
                 >
                   <option value="khaled">د. خالد</option>
                   <option value="abdulkader">د. عبد القادر</option>
@@ -202,18 +273,118 @@ export function PatientForm() {
               <span>ملاحظات الزيارة</span>
               <input
                 value={visit.notes ?? ''}
-                onChange={(event) => setVisit({ ...visit, notes: event.target.value })}
+                onChange={(event) =>
+                  setVisit({ ...visit, notes: event.target.value })
+                }
               />
             </label>
           </div>
         </div>
 
-        <div className="formActions visitActions fullField">
-          <button className="secondaryAction" type="submit" disabled={isBusy}>
-            <Save size={15} />
-            حفظ الملف فقط
-          </button>
+        <div className="chronicBox fullField">
+          <span>الأمراض المزمنة:</span>
+          <label>
+            <input
+              type="checkbox"
+              checked={medicalFlags.none}
+              onChange={() => toggleMedicalFlag('none')}
+            />
+            لا يوجد
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={medicalFlags.hypertension}
+              onChange={() => toggleMedicalFlag('hypertension')}
+            />
+            ضغط الدم
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={medicalFlags.diabetes}
+              onChange={() => toggleMedicalFlag('diabetes')}
+            />
+            السكري
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={medicalFlags.heart}
+              onChange={() => toggleMedicalFlag('heart')}
+            />
+            أمراض القلب
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={medicalFlags.other}
+              onChange={() => toggleMedicalFlag('other')}
+            />
+            أخرى
+          </label>
+        </div>
 
+        <label className="field fullField">
+          <span>كيفية الوصول إلى المركز</span>
+          <input
+            value={referralSource}
+            onChange={(event) => setReferralSource(event.target.value)}
+            placeholder="مثال: توصية طبيب، إعلان، صديق..."
+          />
+        </label>
+
+        {showRadiology && (
+          <div className="radiologyBox fullField">
+            <div className="radiologyTitle">
+              <span><RadioTower size={15} />بيانات الأشعة</span>
+              <small>تظهر فقط عند اختيار نوع الزيارة: أشعة</small>
+            </div>
+
+            <div className="radiologyGrid">
+              <label className="field">
+                <span>مرسل من عيادة</span>
+                <input
+                  value={radiology.referredClinic}
+                  onChange={(event) =>
+                    setRadiology({
+                      ...radiology,
+                      referredClinic: event.target.value,
+                    })
+                  }
+                />
+              </label>
+
+              <label className="field">
+                <span>مرسل من طبيب</span>
+                <input
+                  value={radiology.referredDoctor}
+                  onChange={(event) =>
+                    setRadiology({
+                      ...radiology,
+                      referredDoctor: event.target.value,
+                    })
+                  }
+                />
+              </label>
+
+              <label className="field fullField">
+                <span>الإجراء المطلوب</span>
+                <input
+                  value={radiology.requestedProcedure}
+                  onChange={(event) =>
+                    setRadiology({
+                      ...radiology,
+                      requestedProcedure: event.target.value,
+                    })
+                  }
+                />
+              </label>
+            </div>
+          </div>
+        )}
+
+        <div className="formActions receptionReferenceActions fullField">
           <button
             className="primaryAction"
             type="button"
@@ -221,7 +392,26 @@ export function PatientForm() {
             onClick={form.handleSubmit((data) => saveAndStartVisit.mutate(data))}
           >
             <Send size={15} />
-            حفظ وبدء زيارة
+            حفظ كشف جديد وبدء زيارة
+          </button>
+
+          <button
+            className="secondaryAction"
+            type="submit"
+            disabled={isBusy}
+          >
+            <Save size={15} />
+            حفظ الملف فقط
+          </button>
+
+          <button
+            className="dangerAction"
+            type="button"
+            disabled={isBusy}
+            title="سيتم تنفيذ منطق الاستثناء في فرع مستقل"
+          >
+            <Ban size={14} />
+            حالة قديم استثنائها
           </button>
         </div>
 
