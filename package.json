@@ -1,7 +1,9 @@
 {
   "name": "dental-clinic-fullstack",
   "private": true,
-  "workspaces": ["apps/*"],
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
     "dev": "concurrently -n WEB,API -c auto \"npm run dev -w @dental/web\" \"npm run start:dev -w @dental/api\"",
     "dev:web": "npm run dev -w @dental/web",
@@ -9,7 +11,9 @@
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
     "db:migrate": "npm run prisma:migrate -w @dental/api",
-    "db:generate": "npm run prisma:generate -w @dental/api"
+    "db:generate": "npm run prisma:generate -w @dental/api",
+    "dev:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-stop.ps1",
+    "dev:restart": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-restart.ps1"
   },
   "devDependencies": {
     "concurrently": "^9.0.0"
