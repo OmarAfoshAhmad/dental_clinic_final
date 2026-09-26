@@ -2,21 +2,34 @@ param(
   [int[]]$Ports = @(3000, 3001)
 )
 
-$ErrorActionPreference = 'SilentlyContinue'
+function Get-ListeningConnections {
+  param([int]$Port)
+
+  return @(
+    Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
+  )
+}
 
 foreach ($port in $Ports) {
-  $connections = Get-NetTCPConnection -LocalPort $port -State Listen
+  $connections = Get-ListeningConnections -Port $port
+
+  if ($connections.Count -eq 0) {
+    Write-Host "Port $port is already free." -ForegroundColor DarkGray
+    continue
+  }
 
   foreach ($connection in $connections) {
     $pidToStop = $connection.OwningProcess
 
-    if ($pidToStop -and $pidToStop -ne $PID) {
-      $process = Get-Process -Id $pidToStop
+    if (-not $pidToStop -or $pidToStop -eq $PID) {
+      continue
+    }
 
-      if ($process) {
-        Write-Host "Stopping process $($process.ProcessName) (PID $pidToStop) on port $port..." -ForegroundColor Yellow
-        Stop-Process -Id $pidToStop -Force
-      }
+    $process = Get-Process -Id $pidToStop -ErrorAction SilentlyContinue
+
+    if ($process) {
+      Write-Host "Stopping process $($process.ProcessName) (PID $pidToStop) on port $port..." -ForegroundColor Yellow
+      Stop-Process -Id $pidToStop -Force -ErrorAction SilentlyContinue
     }
   }
 }
@@ -24,8 +37,11 @@ foreach ($port in $Ports) {
 Start-Sleep -Milliseconds 500
 
 $remaining = @()
+
 foreach ($port in $Ports) {
-  if (Get-NetTCPConnection -LocalPort $port -State Listen) {
+  $connections = Get-ListeningConnections -Port $port
+
+  if ($connections.Count -gt 0) {
     $remaining += $port
   }
 }
@@ -36,3 +52,4 @@ if ($remaining.Count -gt 0) {
 }
 
 Write-Host "Development ports are free." -ForegroundColor Green
+exit 0
