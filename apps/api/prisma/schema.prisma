@@ -25,6 +25,32 @@ enum AppointmentStatus {
   COMPLETED
 }
 
+enum VisitType {
+  NEW_CONSULTATION
+  REVIEW
+  FOLLOW_UP
+  EMERGENCY
+  RADIOLOGY
+  DIRECT_PROCEDURE
+  CONSULTATION
+}
+
+enum VisitStatus {
+  REGISTERED
+  ARRIVED
+  WAITING
+  CALLED
+  WITH_DOCTOR
+  PROCEDURE_REQUIRED
+  SENT_TO_TREASURY
+  PAYMENT_PENDING
+  PAID
+  RETURN_TO_DOCTOR
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
 model Clinic {
   id           String        @id @default(cuid())
   code         String        @unique
@@ -59,10 +85,14 @@ model Patient {
   phone          String
   secondaryPhone String?
   address        String?
+
+  // Legacy affinity fields kept temporarily for backward compatibility.
+  // New reception workflow stores clinic/doctor on Visit, not Patient.
   clinicId       String?
   doctorId       String?
   clinic         Clinic?       @relation(fields: [clinicId], references: [id])
   doctor         Doctor?       @relation(fields: [doctorId], references: [id])
+
   queueEntries   QueueEntry[]
   appointments   Appointment[]
   visits         Visit[]
@@ -104,16 +134,22 @@ model Appointment {
 }
 
 model Visit {
-  id        String   @id @default(cuid())
+  id        String      @id @default(cuid())
   patientId String
   clinicId  String?
   doctorId  String?
-  visitedAt DateTime @default(now())
+  type      VisitType   @default(NEW_CONSULTATION)
+  status    VisitStatus @default(REGISTERED)
+  visitedAt DateTime    @default(now())
   notes     String?
-  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  clinic    Clinic?  @relation(fields: [clinicId], references: [id])
-  doctor    Doctor?  @relation(fields: [doctorId], references: [id])
-  createdAt DateTime @default(now())
+
+  patient   Patient     @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  clinic    Clinic?     @relation(fields: [clinicId], references: [id])
+  doctor    Doctor?     @relation(fields: [doctorId], references: [id])
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 
   @@index([patientId, visitedAt])
+  @@index([status, visitedAt])
 }
