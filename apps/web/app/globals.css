@@ -559,3 +559,336 @@ body{
   color:#94a3b8;
   font-size:10px;
 }
+
+
+/* Reception visual balance: compact navbar, no footer, no patient-form scroll */
+body{
+  padding:8px;
+}
+
+.appShell{
+  height:calc(100vh - 16px);
+  min-height:calc(100vh - 16px);
+  max-height:calc(100vh - 16px);
+  border-radius:12px;
+}
+
+.topbar{
+  min-height:58px;
+  padding:6px 14px;
+  gap:12px;
+}
+
+.brandIcon{
+  width:40px;
+  height:40px;
+}
+
+.brand strong{
+  font-size:18px;
+}
+
+.brand small{
+  margin-top:2px;
+  font-size:9px;
+}
+
+.userArea{
+  gap:8px;
+}
+
+.avatar,
+.notificationButton{
+  width:34px;
+  height:34px;
+}
+
+.userIdentity b{
+  font-size:10px;
+}
+
+.userIdentity small{
+  font-size:8px;
+}
+
+.badge{
+  height:30px;
+  padding:0 9px;
+  font-size:10px;
+}
+
+.searchBox{
+  height:30px;
+}
+
+.searchBox input{
+  font-size:10px;
+}
+
+.dashboard{
+  gap:10px;
+  padding:10px;
+  grid-template-columns:minmax(0,41%) minmax(0,59%);
+}
+
+.card{
+  padding:10px 12px;
+  border-radius:10px;
+}
+
+.sectionHeading{
+  min-height:30px;
+  margin-bottom:8px;
+  padding-bottom:7px;
+}
+
+.sectionHeading b,
+.sectionHeading strong{
+  font-size:12px;
+}
+
+.patientForm{
+  gap:8px;
+}
+
+.field>span{
+  font-size:10px;
+}
+
+.field input,
+.field select{
+  height:32px;
+  padding:0 8px;
+  font-size:11px;
+}
+
+.radioGroup{
+  height:32px;
+  font-size:10px;
+}
+
+.birthGenderRow{
+  gap:6px;
+}
+
+.visitSection{
+  margin-top:0;
+  padding:9px;
+}
+
+.visitSectionTitle{
+  margin-bottom:6px;
+  padding-bottom:6px;
+}
+
+.visitSectionTitle strong{
+  font-size:10px;
+}
+
+.visitSectionTitle small{
+  font-size:8px;
+}
+
+.visitFields{
+  gap:6px;
+}
+
+.chronicBox{
+  min-height:32px;
+  padding:4px 7px;
+  gap:6px;
+  font-size:9px;
+}
+
+.radiologyBox{
+  padding-top:7px;
+}
+
+.radiologyTitle{
+  margin-bottom:5px;
+  font-size:10px;
+}
+
+.radiologyTitle small{
+  font-size:8px;
+}
+
+.formActions button{
+  min-height:36px;
+}
+
+.formCard{
+  overflow:hidden !important;
+  scrollbar-gutter:auto;
+}
+
+.receptionColumn{
+  overflow:hidden;
+}
+
+.recordsColumn{
+  display:grid;
+  grid-template-rows:minmax(205px,.95fr) minmax(126px,auto) minmax(170px,.85fr);
+  gap:10px;
+}
+
+.patientsCard,
+.queueCard{
+  min-height:0;
+}
+
+.dentalTable{
+  font-size:10px;
+}
+
+.dentalTable th{
+  padding:6px 7px;
+  font-size:10px;
+}
+
+.dentalTable td{
+  padding:5px 7px;
+}
+
+.refinedQuickGrid{
+  display:grid;
+  grid-template-columns:210px minmax(0,1fr);
+  gap:10px;
+  min-height:126px;
+}
+
+.debtSummaryCard{
+  min-height:126px;
+  border:1px solid #a7f3d0;
+  background:#ecfdf5;
+  color:#065f46;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  text-align:center;
+}
+
+.debtSummaryIcon{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  background:#d1fae5;
+  color:#059669;
+}
+
+.debtSummaryContent{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.debtSummaryContent strong{
+  font-size:10px;
+  color:#065f46;
+}
+
+.debtSummaryContent b{
+  font-size:11px;
+  color:#047857;
+}
+
+.debtSummaryContent small{
+  max-width:130px;
+  font-size:8px;
+  line-height:1.45;
+  color:#64748b;
+}
+
+.liveQuickActions{
+  min-height:126px;
+}
+
+.quickHeader{
+  margin-bottom:7px;
+}
+
+.quickHeader strong{
+  font-size:10px;
+}
+
+.quickContext{
+  font-size:9px;
+}
+
+.compactQuickGrid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+}
+
+.compactQuickGrid button{
+  min-height:32px;
+  font-size:9px;
+}
+
+.compactQuickGrid button:nth-child(5){
+  grid-column:span 2;
+}
+
+.selectedVisitState{
+  margin-top:7px;
+  padding:5px 7px;
+}
+
+.queueCard{
+  min-height:170px;
+}
+
+.statusFooter{
+  display:none !important;
+}
+
+html,
+body{
+  overflow:hidden;
+}
+
+@media(max-width:1200px){
+  html,
+  body{
+    overflow:auto;
+  }
+
+  .appShell{
+    height:auto;
+    max-height:none;
+    min-height:100vh;
+    overflow:visible;
+  }
+
+  .dashboard{
+    grid-template-columns:1fr;
+  }
+
+  .recordsColumn{
+    display:flex;
+  }
+
+  .refinedQuickGrid{
+    grid-template-columns:1fr;
+  }
+
+  .formCard,
+  .receptionColumn{
+    overflow:visible !important;
+  }
+}
+
+@media(max-width:800px){
+  .compactQuickGrid{
+    grid-template-columns:1fr;
+  }
+
+  .compactQuickGrid button:nth-child(5){
+    grid-column:auto;
+  }
+}
