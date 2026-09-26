@@ -1,76 +1,16 @@
-generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
-}
-
-datasource db {
-  provider = "postgresql"
-}
-
-enum Gender {
-  FEMALE
-  MALE
-}
-
-enum QueueStatus {
-  WAITING
-  WITH_DOCTOR
-  IN_CLINIC
-  TREASURY
-}
-
-model Clinic {
-  id        String       @id @default(cuid())
-  code      String       @unique
-  name      String
-  doctors   Doctor[]
-  patients  Patient[]
-  queue     QueueEntry[]
-  createdAt DateTime     @default(now())
-}
-
-model Doctor {
-  id        String       @id @default(cuid())
-  code      String       @unique
-  name      String
-  clinicId  String
-  clinic    Clinic       @relation(fields: [clinicId], references: [id])
-  patients  Patient[]
-  queue     QueueEntry[]
-  createdAt DateTime     @default(now())
-}
-
+generator client { provider = "prisma-client" output = "../src/generated/prisma" }
+datasource db { provider = "postgresql" }
+enum Gender { FEMALE MALE }
+enum QueueStatus { WAITING WITH_DOCTOR IN_CLINIC TREASURY }
+enum AppointmentStatus { BOOKED CANCELLED COMPLETED }
+model Clinic { id String @id @default(cuid()) code String @unique name String doctors Doctor[] patients Patient[] queue QueueEntry[] appointments Appointment[] visits Visit[] createdAt DateTime @default(now()) }
+model Doctor { id String @id @default(cuid()) code String @unique name String clinicId String clinic Clinic @relation(fields:[clinicId],references:[id]) patients Patient[] queue QueueEntry[] appointments Appointment[] visits Visit[] createdAt DateTime @default(now()) }
 model Patient {
-  id             String       @id @default(cuid())
-  fileNumber     Int          @unique @default(autoincrement())
-  fullName       String
-  birthDate      DateTime?
-  gender         Gender
-  phone          String
-  secondaryPhone String?
-  address        String?
-  clinicId       String?
-  doctorId       String?
-  clinic         Clinic?      @relation(fields: [clinicId], references: [id])
-  doctor         Doctor?      @relation(fields: [doctorId], references: [id])
-  queueEntries   QueueEntry[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-
-  @@index([fullName])
-  @@index([phone])
+ id String @id @default(cuid()) fileNumber Int @unique @default(autoincrement()) fullName String birthDate DateTime? gender Gender phone String secondaryPhone String? address String? clinicId String? doctorId String?
+ clinic Clinic? @relation(fields:[clinicId],references:[id]) doctor Doctor? @relation(fields:[doctorId],references:[id]) queueEntries QueueEntry[] appointments Appointment[] visits Visit[]
+ createdAt DateTime @default(now()) updatedAt DateTime @updatedAt
+ @@index([fullName]) @@index([phone])
 }
-
-model QueueEntry {
-  id        String      @id @default(cuid())
-  patientId String
-  clinicId  String?
-  doctorId  String?
-  status    QueueStatus @default(WAITING)
-  arrivedAt DateTime    @default(now())
-  patient   Patient     @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  clinic    Clinic?     @relation(fields: [clinicId], references: [id])
-  doctor    Doctor?     @relation(fields: [doctorId], references: [id])
-
-  @@index([status, arrivedAt])
-}
+model QueueEntry { id String @id @default(cuid()) patientId String clinicId String? doctorId String? status QueueStatus @default(WAITING) arrivedAt DateTime @default(now()) patient Patient @relation(fields:[patientId],references:[id],onDelete:Cascade) clinic Clinic? @relation(fields:[clinicId],references:[id]) doctor Doctor? @relation(fields:[doctorId],references:[id]) @@index([status,arrivedAt]) }
+model Appointment { id String @id @default(cuid()) patientId String clinicId String? doctorId String? scheduledAt DateTime notes String? status AppointmentStatus @default(BOOKED) patient Patient @relation(fields:[patientId],references:[id],onDelete:Cascade) clinic Clinic? @relation(fields:[clinicId],references:[id]) doctor Doctor? @relation(fields:[doctorId],references:[id]) createdAt DateTime @default(now()) @@index([scheduledAt,status]) }
+model Visit { id String @id @default(cuid()) patientId String clinicId String? doctorId String? visitedAt DateTime @default(now()) notes String? patient Patient @relation(fields:[patientId],references:[id],onDelete:Cascade) clinic Clinic? @relation(fields:[clinicId],references:[id]) doctor Doctor? @relation(fields:[doctorId],references:[id]) createdAt DateTime @default(now()) @@index([patientId,visitedAt]) }
