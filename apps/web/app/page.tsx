@@ -6,7 +6,6 @@ import { PatientForm } from '@/components/patient-form';
 import { PatientsTable } from '@/components/patients-table';
 import { QuickActions } from '@/components/quick-actions';
 import { QueueTable } from '@/components/queue-table';
-import { StatusFooter } from '@/components/status-footer';
 import { ReceptionDialogs } from '@/components/reception-dialogs';
 
 export default function HomePage() {
@@ -28,7 +27,6 @@ export default function HomePage() {
         </section>
       </div>
 
-      <StatusFooter />
       <ReceptionDialogs />
     </main>
   );
