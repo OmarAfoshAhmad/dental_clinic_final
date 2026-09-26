@@ -357,3 +357,74 @@ html[data-density="comfortable"] .dentalTable td{
 @media(max-width:800px){
   .appShell{min-height:100vh}
 }
+
+
+/* Reference-layout parity */
+.dashboard{
+  grid-template-columns:minmax(0,41.5%) minmax(0,58.5%);
+}
+
+.receptionColumn{
+  min-width:0;
+}
+
+.recordsColumn{
+  min-width:0;
+}
+
+.receptionReferenceActions{
+  grid-template-columns:1.65fr 1fr 1fr;
+}
+
+.chronicBox{
+  min-height:38px;
+  font-size:10px;
+}
+
+.radiologyBox{
+  margin-top:1px;
+  padding-top:10px;
+}
+
+.radiologyTitle{
+  font-size:11px;
+}
+
+.radiologyTitle small{
+  font-size:9px;
+}
+
+.formCard{
+  display:flex;
+  flex-direction:column;
+}
+
+.patientForm{
+  flex:1;
+  align-content:start;
+}
+
+.patientsCard{
+  min-height:260px;
+}
+
+.middleGrid{
+  min-height:155px;
+}
+
+.queueCard{
+  min-height:265px;
+}
+
+.recordsColumn{
+  grid-template-rows:minmax(260px,.95fr) minmax(155px,auto) minmax(265px,1.05fr);
+}
+
+@media(max-width:1200px){
+  .dashboard{grid-template-columns:1fr}
+  .recordsColumn{display:flex}
+}
+
+@media(max-width:800px){
+  .receptionReferenceActions{grid-template-columns:1fr}
+}
