@@ -428,3 +428,91 @@ html[data-density="comfortable"] .dentalTable td{
 @media(max-width:800px){
   .receptionReferenceActions{grid-template-columns:1fr}
 }
+
+
+/* Reception viewport lock: prevent browser window scrolling */
+html,
+body{
+  height:100%;
+  overflow:hidden;
+}
+
+body{
+  min-height:100%;
+  padding:10px;
+}
+
+.appShell{
+  height:calc(100vh - 20px);
+  min-height:0;
+  max-height:calc(100vh - 20px);
+  overflow:hidden;
+}
+
+.dashboard{
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+}
+
+.receptionColumn,
+.recordsColumn{
+  min-height:0;
+  overflow:hidden;
+}
+
+.formCard,
+.patientsCard,
+.queueCard,
+.quickCard{
+  min-height:0;
+  overflow:hidden;
+}
+
+.formCard{
+  overflow:auto;
+  scrollbar-gutter:stable;
+}
+
+.patientsCard,
+.queueCard{
+  display:flex;
+  flex-direction:column;
+}
+
+.patientsCard .tableWrap,
+.queueCard .tableWrap{
+  flex:1 1 auto;
+  min-height:0;
+  overflow:auto;
+}
+
+.middleGrid{
+  min-height:0;
+}
+
+.statusFooter{
+  flex:0 0 auto;
+  overflow-x:auto;
+  overflow-y:hidden;
+}
+
+@media(max-width:1200px){
+  html,
+  body{
+    overflow:auto;
+  }
+
+  .appShell{
+    height:auto;
+    max-height:none;
+    min-height:100vh;
+    overflow:visible;
+  }
+
+  .dashboard,
+  .receptionColumn,
+  .recordsColumn{
+    overflow:visible;
+  }
+}
