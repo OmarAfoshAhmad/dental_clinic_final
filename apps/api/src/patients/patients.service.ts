@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type {
   AppointmentInput,
@@ -9,8 +9,6 @@ import type {
 @Injectable()
 export class PatientsService {
   constructor(private readonly prisma: PrismaService) {}
-
-  private readonly include = { clinic: true, doctor: true } as const;
 
   async list(search: string) {
     const rows = await this.prisma.patient.findMany({
@@ -25,29 +23,72 @@ export class PatientsService {
             ],
           }
         : undefined,
-      include: this.include,
+      include: {
+        clinic: true,
+        doctor: true,
+        visits: {
+          take: 1,
+          orderBy: { visitedAt: 'desc' },
+          include: { clinic: true, doctor: true },
+        },
+      },
       orderBy: { updatedAt: 'desc' },
       take: 50,
     });
 
-    return rows.map((patient) => ({
-      ...patient,
-      age: patient.birthDate ? this.calculateAge(patient.birthDate) : null,
-    }));
+    return rows.map(({ visits, ...patient }) => {
+      const latestVisit = visits[0];
+
+      return {
+        ...patient,
+        clinic: latestVisit?.clinic ?? patient.clinic,
+        doctor: latestVisit?.doctor ?? patient.doctor,
+        latestVisit: latestVisit
+          ? {
+              id: latestVisit.id,
+              type: latestVisit.type,
+              status: latestVisit.status,
+              visitedAt: latestVisit.visitedAt,
+            }
+          : null,
+        age: patient.birthDate ? this.calculateAge(patient.birthDate) : null,
+      };
+    });
   }
 
   async get(id: string) {
     const patient = await this.prisma.patient.findUnique({
       where: { id },
-      include: this.include,
+      include: {
+        clinic: true,
+        doctor: true,
+        visits: {
+          take: 1,
+          orderBy: { visitedAt: 'desc' },
+          include: { clinic: true, doctor: true },
+        },
+      },
     });
 
     if (!patient) {
       throw new NotFoundException('Patient not found');
     }
 
+    const latestVisit = patient.visits[0];
+    const { visits, ...rest } = patient;
+
     return {
-      ...patient,
+      ...rest,
+      clinic: latestVisit?.clinic ?? patient.clinic,
+      doctor: latestVisit?.doctor ?? patient.doctor,
+      latestVisit: latestVisit
+        ? {
+            id: latestVisit.id,
+            type: latestVisit.type,
+            status: latestVisit.status,
+            visitedAt: latestVisit.visitedAt,
+          }
+        : null,
       age: patient.birthDate ? this.calculateAge(patient.birthDate) : null,
     };
   }
@@ -62,7 +103,7 @@ export class PatientsService {
         secondaryPhone: input.secondaryPhone || null,
         address: input.address || null,
       },
-      include: this.include,
+      include: { clinic: true, doctor: true },
     });
   }
 
@@ -70,11 +111,40 @@ export class PatientsService {
     return this.prisma.patient.update({
       where: { id },
       data: input,
-      include: this.include,
+      include: { clinic: true, doctor: true },
     });
   }
 
-  remove(id: string) {
+  async remove(id: string) {
+    const patient = await this.prisma.patient.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        _count: {
+          select: {
+            visits: true,
+            appointments: true,
+            queueEntries: true,
+          },
+        },
+      },
+    });
+
+    if (!patient) {
+      throw new NotFoundException('Patient not found');
+    }
+
+    const hasHistory =
+      patient._count.visits > 0 ||
+      patient._count.appointments > 0 ||
+      patient._count.queueEntries > 0;
+
+    if (hasHistory) {
+      throw new BadRequestException(
+        'Patient has operational history and cannot be deleted',
+      );
+    }
+
     return this.prisma.patient.delete({ where: { id } });
   }
 
