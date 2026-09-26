@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: dental-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dental
+      POSTGRES_USER: dental
+      POSTGRES_PASSWORD: dental
+    ports:
+      - "5433:5432"
+    volumes:
+      - dental_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dental -d dental"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  dental_pgdata:
